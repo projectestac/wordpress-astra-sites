@@ -144,6 +144,7 @@ const ImportSite = () => {
 		let cfStatus = false;
 		let formsStatus = false;
 		let customizerStatus = false;
+		let spectraStatus = false;
 
 		resetStatus = await resetOldSite();
 
@@ -160,7 +161,11 @@ const ImportSite = () => {
 		}
 
 		if ( customizerStatus ) {
-			await importSiteContent();
+			spectraStatus =await importSiteContent();
+		}
+
+		if ( spectraStatus ) {
+			await ImportSpectraSettings();
 		}
 	};
 
@@ -1122,6 +1127,70 @@ const ImportSite = () => {
 		return status;
 	};
 
+	/**
+	 * 6. Import Spectra Settings.
+	 */
+	 const ImportSpectraSettings = async () => {
+		const spectra_settings =
+			encodeURI( templateResponse[ 'astra-site-spectra-settings' ] ) || '';
+
+		if ( '' === spectra_settings || 'null' === spectra_settings ) {
+			return true;
+		}
+
+		dispatch( {
+			type: 'set',
+			importStatus: __( 'Importing Spectra Settings.', 'astra-sites' ),
+		} );
+
+		const spectra = new FormData();
+		spectra.append( 'action', 'astra-sites-import-spectra-settings' );
+		spectra.append( 'spectra_settings', spectra_settings );
+		spectra.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
+
+		const status = await fetch( ajaxurl, {
+			method: 'post',
+			body: spectra,
+		} )
+			.then( ( response ) => response.text() )
+			.then( ( text ) => {
+				try {
+					const data = JSON.parse( text );
+					if ( data.success ) {
+						percentage += 2;
+						dispatch( {
+							type: 'set',
+							importPercent: percentage,
+						} );
+						return true;
+					}
+					throw data.data;
+				} catch ( error ) {
+					report(
+						__(
+							'Importing Spectra Settings failed due to parse JSON error.',
+							'astra-sites'
+						),
+						'',
+						error,
+						'',
+						'',
+						text
+					);
+					return false;
+				}
+			} )
+			.catch( ( error ) => {
+				report(
+					__( 'Importing Spectra Settings Failed.', 'astra-sites' ),
+					'',
+					error
+				);
+				return false;
+			} );
+		return status;
+	};
+		
 	/**
 	 * Imports XML using EventSource.
 	 *

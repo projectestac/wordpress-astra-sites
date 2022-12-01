@@ -223,6 +223,7 @@ var AstraSitesAjaxQueue = (function () {
 		wxr_url: '',
 		wpforms_url: '',
 		cartflows_url: '',
+		spectra_settings: '',
 		options_data: '',
 		widgets_data: '',
 		enabled_extensions: '',
@@ -446,7 +447,8 @@ var AstraSitesAjaxQueue = (function () {
 
 			$(document).on('astra-sites-reset-data-done', AstraSitesAdmin._recheck_backup_options);
 			$(document).on('astra-sites-backup-settings-done', AstraSitesAdmin._startImportCartFlows);
-			$(document).on('astra-sites-import-cartflows-done', AstraSitesAdmin._startImportWPForms);
+			$(document).on('astra-sites-import-cartflows-done', AstraSitesAdmin._startImportSpectraSettings);
+			$(document).on('astra-sites-import-spectra-settings-done', AstraSitesAdmin._startImportWPForms);
 			$(document).on('astra-sites-import-wpforms-done', AstraSitesAdmin._importCustomizerSettings);
 			$(document).on('astra-sites-import-customizer-settings-done', AstraSitesAdmin._importXML);
 			$(document).on('astra-sites-import-xml-done', AstraSitesAdmin.import_siteOptions);
@@ -2736,6 +2738,49 @@ var AstraSitesAjaxQueue = (function () {
 
 		},
 
+		_startImportSpectraSettings: function (event) {
+			if (AstraSitesAdmin._is_process_xml() && '' !== AstraSitesAdmin.spectra_settings) {
+
+				$.ajax({
+					url: astraSitesVars.ajaxurl,
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						action: 'astra-sites-import-spectra-settings',
+						spectra_settings: AstraSitesAdmin.spectra_settings,
+						_ajax_nonce: astraSitesVars._ajax_nonce,
+					},
+					beforeSend: function () {
+						console.groupCollapsed('Importing Spectra Settings');
+						AstraSitesAdmin._log_title('Importing Spectra Settings..');
+						AstraSitesAdmin._log(AstraSitesAdmin.spectra_settings);
+					},
+				})
+					.fail(function (jqXHR) {
+						AstraSitesAdmin._log(jqXHR);
+						AstraSitesAdmin._failed( jqXHR.status + ' ' + jqXHR.statusText, 'Import Spectra Settings Failed!' );
+						console.groupEnd();
+					})
+					.done(function (response) {
+						AstraSitesAdmin._log(response);
+
+						// 1. Fail - Import Spectra Settings.
+						if (false === response.success) {
+							AstraSitesAdmin._failed( response.data, 'Import Spectra Settings Failed!' );
+							console.groupEnd();
+						} else {
+							console.groupEnd();
+							// 1. Pass - Import Spectra Settings.
+							$(document).trigger(AstraSitesAdmin.action_slug + '-import-spectra-settings-done');
+						}
+					});
+
+			} else {
+				$(document).trigger(AstraSitesAdmin.action_slug + '-import-spectra-settings-done');
+			}
+
+		},
+
 		_startImportWPForms: function (event) {
 
 			if (AstraSitesAdmin._is_process_xml() && '' !== AstraSitesAdmin.wpforms_url) {
@@ -3874,6 +3919,7 @@ var AstraSitesAjaxQueue = (function () {
 			AstraSitesAdmin.wxr_url = encodeURI(data['astra-site-wxr-path']) || '';
 			AstraSitesAdmin.wpforms_url = encodeURI(data['astra-site-wpforms-path']) || '';
 			AstraSitesAdmin.cartflows_url = encodeURI(data['astra-site-cartflows-path']) || '';
+			AstraSitesAdmin.spectra_settings = encodeURI(data['astra-site-spectra-settings']) || '';
 			AstraSitesAdmin.options_data = JSON.stringify(data['astra-site-options-data']) || '';
 			AstraSitesAdmin.enabled_extensions = JSON.stringify(data['astra-enabled-extensions']) || '';
 			AstraSitesAdmin.widgets_data = data['astra-site-widgets-data'] || '';

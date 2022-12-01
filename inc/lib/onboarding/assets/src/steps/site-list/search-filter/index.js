@@ -16,6 +16,7 @@ const SiteSearch = ( { setSiteData } ) => {
 			searchTermsWithCount,
 			builder,
 			siteType,
+			stagingConnected,
 		},
 		dispatch,
 	] = useStateValue();
@@ -108,7 +109,7 @@ const SiteSearch = ( { setSiteData } ) => {
 		<div className="st-search-box-wrap" ref={ parentRef }>
 			<div className="st-search-filter st-search-box" ref={ ref }>
 				<Search
-					apiUrl={ `${ astraSitesVars.ApiDomain }wp-json/starter-templates/v2/sites-search/?search=${ siteSearchTerm }&page-builder=${ builder }&type=${ siteType }` }
+					apiUrl={ `${ astraSitesVars.ApiDomain }wp-json/starter-templates/v2/sites-search/?search=${ siteSearchTerm }&page-builder=${ builder }&type=${ siteType }${ stagingConnected }` }
 					beforeSearchResult={ () => {
 						if ( ! siteSearchTerm ) {
 							return;

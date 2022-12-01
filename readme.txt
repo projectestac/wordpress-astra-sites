@@ -4,8 +4,8 @@ Donate link: https://wpastra.com/pro/
 Tags: Elementor,Beaver Builder,Templates,Gutenberg,Block Editor,Astra Starter Sites
 Requires at least: 4.4
 Requires PHP: 5.3
-Tested up to: 5.9
-Stable tag: 3.1.8
+Tested up to: 6.1
+Stable tag: 3.1.18
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -132,6 +132,43 @@ We are open to suggestions and would love to work on topics that our users are l
 8. Free Images by Pixabay right inside the WordPress media popup.
 
 == Changelog ==
+
+v3.1.18 - 04-November-2022
+Fix: Compatibility to WordPress 6.1.
+Improvement: Responsive welcome banner notice on WP dashboard for fresh installation.
+
+v3.1.17 - 10-October-2022
+New: Added welcome banner notice on WP dashboard for fresh installation.
+
+v3.1.16 - 12-September-2022
+- Improvement: Added compatibility for Spectra.
+- Fix: White screen is appearing on latest safari 15+ browser when select any template.
+- Fix: Install Spectra only when light category Patterns importing.
+
+v3.1.15 - 23-Aug-2022
+- Improvement: Install Spectra while importing Block Patterns and Wireframe Patterns.
+
+v3.1.14 - 18-Aug-2022
+- Fix: Block editor templates are not imported correctly.
+
+v3.1.13 - 18-July-2022
+- Fix: Prevent invalid redirection after template import.
+
+v3.1.12 - 12-July-2022
+- Improvement: Disable promotes Essential & Growth bundle when white label is enabled.
+- Fix: Templates are not displayed when we install plugin from Astra notice.
+- Fix: Display "Install Required Plugins" checkbox option if required plugins are not installed. 
+
+v3.1.11 - 03-June-2022
+- Improvement: Activate plugins using WP-CLI when importing demo using cli command.
+
+v3.1.10 - 19-May-2022
+- Improvement: Renamed button text from Starter Templates to Template Kits.
+
+v3.1.9 - 16-May-2022
+- Improvement: Enhanced test environments.
+- Fix: Fixed redirection of few required plugins during import.
+- Fix: Missing support for wp_block post type in Gutenberg templates.
 
 v3.1.8 - 13-April-2022
 - Fix: Fixed an issue with the click action for category mega menu titles.
@@ -272,7 +309,7 @@ v3.0.2 - 8-December-2021
 
 v3.0.1 - 8-December-2021
 - Improvement: Better handling of errors.
-- Fix: Removed extra sub directory from v3.0.0 update. 
+- Fix: Removed extra sub directory from v3.0.0 update.
 
 v3.0.0 - 8-December-2021
 - New: All new user interface to make it easier to select and customize the templates when you are building your website.

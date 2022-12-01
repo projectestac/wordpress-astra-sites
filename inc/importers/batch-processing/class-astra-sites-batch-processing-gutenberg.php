@@ -91,7 +91,7 @@ if ( ! class_exists( 'Astra_Sites_Batch_Processing_Gutenberg' ) ) :
 
 			Astra_Sites_Importer_Log::add( '---- Processing WordPress Posts / Pages - for "Gutenberg" ----' );
 
-			$post_types = apply_filters( 'astra_sites_gutenberg_batch_process_post_types', array( 'page' ) );
+			$post_types = apply_filters( 'astra_sites_gutenberg_batch_process_post_types', array( 'page', 'wp_block' ) );
 			if ( defined( 'WP_CLI' ) ) {
 				WP_CLI::line( 'For post types: ' . implode( ', ', $post_types ) );
 			}

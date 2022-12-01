@@ -234,6 +234,10 @@ class Astra_Site_Options_Import {
 	 * @return void
 	 */
 	private function update_page_id_by_option_value( $option_name, $option_value ) {
+		if ( empty( $option_value ) ) {
+			return;
+		}
+
 		$page = get_page_by_title( $option_value );
 		if ( is_object( $page ) ) {
 			update_option( $option_name, $page->ID );

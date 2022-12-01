@@ -863,6 +863,11 @@ if ( ! class_exists( 'WXR_Importer' ) && class_exists( 'WP_Importer' ) ) :
 				return;
 			}
 
+			// If post status as 'dp-rewrite-republish' OR trash OR draft then skip.
+			if ( 'dp-rewrite-republish' === $data['post_status'] || 'draft' === $data['post_status'] || 'trash' === $data['post_status'] ) {
+				return;
+			}
+
 			$post_type_object = get_post_type_object( $data['post_type'] );
 
 			// Is this type even valid?

@@ -206,7 +206,7 @@ if ( class_exists( 'WP_CLI_Command' ) && ! class_exists( 'Astra_Sites_WP_CLI' ) 
 								WP_CLI::runcommand( 'plugin install ' . $plugin['slug'] );
 
 								// Activate plugin.
-								Astra_Sites::get_instance()->required_plugin_activate( $plugin['init'], $demo_data['astra-site-options-data'], $demo_data['astra-enabled-extensions'] );
+								WP_CLI::runcommand( 'plugin activate ' . $plugin['slug'] );
 							}
 						}
 					}

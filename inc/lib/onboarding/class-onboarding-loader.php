@@ -117,6 +117,15 @@ class Intelligent_Starter_Templates_Loader {
 	 * @return void
 	 */
 	public function enqueue_scripts( $hook = '' ) {
+
+		// After activating the starter template from Astra notice for the first time, the templates was not displayed because of template import process not fully done.
+		if( isset( $_GET['ast-disable-activation-notice'] ) ){
+			$current_url = home_url( $_SERVER['REQUEST_URI'] );
+			$current_url = str_replace( '&ast-disable-activation-notice', '', $current_url );
+			wp_safe_redirect( $current_url );
+			exit;
+		}
+
 		if ( 'appearance_page_starter-templates' !== $hook ) {
 			return;
 		}

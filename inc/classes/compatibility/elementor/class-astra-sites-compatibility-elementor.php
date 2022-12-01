@@ -71,6 +71,20 @@ if ( ! class_exists( 'Astra_Sites_Compatibility_Elementor' ) ) :
 			add_action( 'astra_sites_before_sse_import', array( $this, 'disable_attachment_metadata' ) );
 
 			add_action( 'init', array( $this, 'init' ) );
+			add_action( 'astra_sites_after_plugin_activation', array( $this, 'disable_elementor_redirect' ) );
+		}
+
+		/**
+		 * Disable Elementor redirect.
+		 *
+		 * @return void.
+		 */
+		public function disable_elementor_redirect() {
+			$elementor_redirect = get_transient( 'elementor_activation_redirect' );
+
+			if ( ! empty( $elementor_redirect ) && '' !== $elementor_redirect ) {
+				delete_transient( 'elementor_activation_redirect' );
+			}
 		}
 
 		/**

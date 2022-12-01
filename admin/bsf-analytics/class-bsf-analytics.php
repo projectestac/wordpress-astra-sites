@@ -53,7 +53,7 @@ if ( ! class_exists( 'BSF_Analytics' ) ) {
 			define( 'BSF_ANALYTICS_URI', $this->get_analytics_url( $analytics_path ) );
 
 			add_action( 'admin_init', array( $this, 'handle_optin_optout' ) );
-			add_action( 'admin_notices', array( $this, 'option_notice' ) );
+			add_action( 'admin_init', array( $this, 'option_notice' ) );
 			add_action( 'init', array( $this, 'maybe_track_analytics' ), 99 );
 
 			$this->set_actions();
@@ -241,19 +241,23 @@ if ( ! class_exists( 'BSF_Analytics' ) ) {
 								</div>',
 							/* translators: %s usage doc link */
 							sprintf( $notice_string . '<span dir="%2s"><a href="%3s" target="_blank" rel="noreferrer noopener">%4s</a><span>', esc_html( $data['product_name'] ), $language_dir, esc_url( $usage_doc_link ), __( ' Know More.', 'astra-sites' ) ),
-							add_query_arg(
-								array(
-									$key . '_analytics_optin' => 'yes',
-									$key . '_analytics_nonce' => wp_create_nonce( $key . '_analytics_optin' ),
-									'bsf_analytics_source' => $key,
+							esc_url(
+								add_query_arg(
+									array(
+										$key . '_analytics_optin' => 'yes',
+										$key . '_analytics_nonce' => wp_create_nonce( $key . '_analytics_optin' ),
+										'bsf_analytics_source' => $key,
+									)
 								)
 							),
 							__( 'Yes! Allow it', 'astra-sites' ),
-							add_query_arg(
-								array(
-									$key . '_analytics_optin' => 'no',
-									$key . '_analytics_nonce' => wp_create_nonce( $key . '_analytics_optin' ),
-									'bsf_analytics_source' => $key,
+							esc_url(
+								add_query_arg(
+									array(
+										$key . '_analytics_optin' => 'no',
+										$key . '_analytics_nonce' => wp_create_nonce( $key . '_analytics_optin' ),
+										'bsf_analytics_source' => $key,
+									)
 								)
 							),
 							MONTH_IN_SECONDS,
@@ -298,11 +302,13 @@ if ( ! class_exists( 'BSF_Analytics' ) ) {
 			}
 
 			wp_safe_redirect(
-				remove_query_arg(
-					array(
-						$source . '_analytics_optin',
-						$source . '_analytics_nonce',
-						'bsf_analytics_source',
+				esc_url_raw(
+					remove_query_arg(
+						array(
+							$source . '_analytics_optin',
+							$source . '_analytics_nonce',
+							'bsf_analytics_source',
+						)
 					)
 				)
 			);

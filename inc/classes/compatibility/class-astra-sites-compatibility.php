@@ -67,6 +67,9 @@ if ( ! class_exists( 'Astra_Sites_Compatibility' ) ) :
 
 			// Plugin - UABB.
 			require_once ASTRA_SITES_DIR . 'inc/classes/compatibility/uabb/class-astra-sites-compatibility-uabb.php';
+
+			// Plugin - Checkout Plugins - Stripe.
+			require_once ASTRA_SITES_DIR . 'inc/classes/compatibility/checkout-plugins-stripe-woo/class-astra-sites-checkout-plugins-stripe-woo.php';
 		}
 
 	}

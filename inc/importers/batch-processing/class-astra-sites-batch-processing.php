@@ -86,7 +86,7 @@ if ( ! class_exists( 'Astra_Sites_Batch_Processing' ) ) :
 			add_filter( 'astra_sites_image_importer_skip_image', array( $this, 'skip_image' ), 10, 2 );
 			add_action( 'astra_sites_import_complete', array( $this, 'start_process' ) );
 			add_action( 'astra_sites_process_single', array( $this, 'start_process_single' ) );
-			add_action( 'admin_head', array( $this, 'start_importer' ) );
+			add_action( 'admin_init', array( $this, 'start_importer' ) );
 			add_action( 'wp_ajax_astra-sites-update-library', array( $this, 'update_library' ) );
 			add_action( 'wp_ajax_astra-sites-update-library-complete', array( $this, 'update_library_complete' ) );
 			add_action( 'wp_ajax_astra-sites-import-all-categories-and-tags', array( $this, 'import_all_categories_and_tags' ) );
