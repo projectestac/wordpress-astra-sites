@@ -12,10 +12,8 @@ import TypographyWrapper from './typography';
 import { DARK_PALETTES, LIGHT_PALETTES } from './colors';
 
 const SiteColorsControls = () => {
-	const [
-		{ activePaletteSlug, templateResponse, builder },
-		dispatch,
-	] = useStateValue();
+	const [ { activePaletteSlug, templateResponse, builder }, dispatch ] =
+		useStateValue();
 	const [ defaultPalette, setDefaultPalette ] = useState( [] );
 	const [ colorScheme, setColorScheme ] = useState( LIGHT_PALETTES );
 
@@ -44,7 +42,8 @@ const SiteColorsControls = () => {
 				? LIGHT_PALETTES
 				: DARK_PALETTES;
 
-		const customColors = templateResponse[ 'astra-custom-palettes' ] || [];
+		const customColors =
+			templateResponse?.[ 'astra-custom-palettes' ] || [];
 		if ( customColors.length && customColors.length % 2 === 0 ) {
 			let colors = customColors;
 

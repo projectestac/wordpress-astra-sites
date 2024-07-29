@@ -8,6 +8,8 @@
  * @since 1.0.0
  */
 
+use STImporter\Importer\Helpers\ST_Image_Importer;
+
 if ( ! class_exists( 'Astra_Sites_Compatibility_Astra_Pro' ) ) :
 
 	/**
@@ -134,7 +136,7 @@ if ( ! class_exists( 'Astra_Sites_Compatibility_Astra_Pro' ) ) :
 		 * @return null     If there is no import option data found.
 		 */
 		public static function start_post_mapping() {
-			$demo_data = get_option( 'astra_sites_import_data', array() );
+			$demo_data = Astra_Sites_File_System::get_instance()->get_demo_content();
 			if ( ! isset( $demo_data['astra-post-data-mapping'] ) ) {
 				return;
 			}
@@ -143,7 +145,8 @@ if ( ! class_exists( 'Astra_Sites_Compatibility_Astra_Pro' ) ) :
 			$posts     = ( isset( $demo_data['astra-post-data-mapping'][ $post_type ] ) ) ? $demo_data['astra-post-data-mapping'][ $post_type ] : array();
 			if ( ! empty( $posts ) ) {
 				foreach ( $posts as $key => $post ) {
-					$page = get_page_by_title( $post['post_title'], OBJECT, $post_type );
+					$page = Astra_Site_Options_Import::instance()->get_page_by_title( $post['post_title'], $post_type );
+					
 					if ( is_object( $page ) ) {
 						if ( defined( 'WP_CLI' ) ) {
 							WP_CLI::line( 'Setting Location Rules for ' . $post['post_title'] );
@@ -157,7 +160,8 @@ if ( ! class_exists( 'Astra_Sites_Compatibility_Astra_Pro' ) ) :
 			$posts     = ( isset( $demo_data['astra-post-data-mapping'][ $post_type ] ) ) ? $demo_data['astra-post-data-mapping'][ $post_type ] : array();
 			if ( ! empty( $posts ) ) {
 				foreach ( $posts as $key => $post ) {
-					$page = get_page_by_title( $post['post_title'], OBJECT, $post_type );
+					$page = Astra_Site_Options_Import::instance()->get_page_by_title( $post['post_title'], $post_type );
+
 					if ( is_object( $page ) ) {
 						if ( defined( 'WP_CLI' ) ) {
 							WP_CLI::line( 'Setting Location Rules for ' . $post['post_title'] );
@@ -279,7 +283,7 @@ if ( ! class_exists( 'Astra_Sites_Compatibility_Astra_Pro' ) ) :
 			if ( isset( $headers_data['images'] ) && ! empty( $headers_data['images'] ) ) {
 				foreach ( $headers_data['images'] as $key => $image_data ) {
 					if ( isset( $image_data['image'] ) && ! empty( $image_data['image'] ) ) {
-						$downloaded_image = Astra_Sites_Image_Importer::get_instance()->import( $image_data['image'] );
+						$downloaded_image = ST_Image_Importer::get_instance()->import( $image_data['image'] );
 
 						$headers_old[ $image_data['key_map']['url'] ] = $downloaded_image['url'];
 						$headers_old[ $image_data['key_map']['id'] ]  = $downloaded_image['id'];

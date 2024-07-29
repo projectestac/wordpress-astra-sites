@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { __ } from '@wordpress/i18n';
-import { Tooltip } from '@brainstormforce/starter-templates-components';
+import Tooltip from '../../components/tooltip/tooltip';
+import { __, sprintf } from '@wordpress/i18n';
 import { PreviousStepLink, DefaultStep } from '../../components/index';
 import ICONS from '../../../icons';
+import { renderToString } from 'react-dom/server';
 import { useStateValue } from '../../store/store';
 import { checkRequiredPlugins } from '../../steps/import-site/import-utils';
 import SurveyForm from './survey';
@@ -25,8 +26,8 @@ const Survey = () => {
 		dispatch,
 	] = storedState;
 
-	const notInstalled = requiredPlugins.required_plugins.notinstalled;
-	const notActivated = requiredPlugins.required_plugins.inactive;
+	const notInstalled = requiredPlugins?.required_plugins?.notinstalled;
+	const notActivated = requiredPlugins?.required_plugins?.inactive;
 	const allPuginList = [];
 	if ( notInstalled.length > 0 ) {
 		notInstalled.map( ( plugin ) => {
@@ -45,7 +46,27 @@ const Survey = () => {
 			} );
 		} );
 	}
+	const terms = (
+		<a
+			className="st-link"
+			href="https://store.brainstormforce.com/terms-and-conditions/"
+			target="_blank"
+			rel="noreferrer"
+		>
+			Terms
+		</a>
+	);
 
+	const privacyPolicy = (
+		<a
+			className="st-link"
+			href="https://store.brainstormforce.com/privacy-policy/"
+			target="_blank"
+			rel="noreferrer"
+		>
+			Privacy Policy
+		</a>
+	);
 	const manualPluginInstallation = () => {
 		return (
 			<form className="install-plugins-form" onSubmit={ recheckPlugins }>
@@ -140,16 +161,15 @@ const Survey = () => {
 			Object.keys( requirementWarning ).length > 0;
 	}
 
-	const [ showRequirementCheck, setShowRequirementCheck ] = useState(
-		requirementsFlag
-	);
+	const [ showRequirementCheck, setShowRequirementCheck ] =
+		useState( requirementsFlag );
 
 	const [ formDetails, setFormDetails ] = useState( {
 		first_name: '',
 		email: '',
 		wp_user_type: '',
 		build_website_for: '',
-		opt_in: false,
+		opt_in: true,
 	} );
 
 	const updateFormDetails = ( field, value ) => {
@@ -161,8 +181,9 @@ const Survey = () => {
 
 	const setStartFlag = () => {
 		const content = new FormData();
-		content.append( 'action', 'astra-sites-set-start-flag' );
+		content.append( 'action', 'astra-sites-set_start_flag' );
 		content.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
+		content.append( 'template_type', 'classic' );
 
 		fetch( ajaxurl, {
 			method: 'post',
@@ -210,7 +231,7 @@ const Survey = () => {
 			return;
 		}
 
-		if ( ! formDetails.opt_in ) {
+		if ( ! formDetails.opt_in && ! formDetails.email ) {
 			return;
 		}
 
@@ -254,7 +275,6 @@ const Survey = () => {
 	const surveyForm = () => {
 		return (
 			<form className="survey-form" onSubmit={ handleSurveyFormSubmit }>
-				<h1>{ __( 'Okay, just one last step…', 'astra-sites' ) }</h1>
 				{ astraSitesVars.subscribed !== 'yes' && (
 					<SurveyForm updateFormDetails={ updateFormDetails } />
 				) }
@@ -266,6 +286,20 @@ const Survey = () => {
 					{ __( 'Submit & Build My Website', 'astra-sites' ) }
 					{ ICONS.arrowRight }
 				</button>
+				<p
+					className="!text-zip-app-inactive-icon subscription-agreement-text text-center mt-4"
+					dangerouslySetInnerHTML={ {
+						__html: sprintf(
+							// translators: %s: support link
+							__(
+								'By continuing you agree to our %1$s and %2$s.',
+								'astra-sites'
+							),
+							renderToString( terms ),
+							renderToString( privacyPolicy )
+						),
+					} }
+				></p>
 			</form>
 		);
 	};
@@ -377,11 +411,11 @@ const Survey = () => {
 										<div className="requirement-list-item">
 											{ value.title }
 											<Tooltip
+												interactive={ true }
 												content={
 													<span
 														dangerouslySetInnerHTML={ {
-															__html:
-																value.tooltip,
+															__html: value.tooltip,
 														} }
 													/>
 												}
@@ -401,11 +435,11 @@ const Survey = () => {
 										<div className="requirement-list-item">
 											{ value.title }
 											<Tooltip
+												interactive={ true }
 												content={
 													<span
 														dangerouslySetInnerHTML={ {
-															__html:
-																value.tooltip,
+															__html: value.tooltip,
 														} }
 													/>
 												}
@@ -438,6 +472,7 @@ const Survey = () => {
 		const {
 			is_readable: isReadable,
 			is_writable: isWritable,
+			is_wp_filesystem: isFilesystem,
 		} = fileSystemPermissions.permissions;
 
 		return (
@@ -485,6 +520,21 @@ const Survey = () => {
 							/>
 						</div>
 					</li>
+					<li>
+						<div className="requirement-list-item">
+							{ __(
+								'WP_Filesystem Permissions:',
+								'astra-sites'
+							) }
+							<span
+								className={ `dashicons ${
+									isFilesystem
+										? 'dashicons-yes'
+										: 'dashicons-no'
+								}` }
+							/>
+						</div>
+					</li>
 				</ul>
 
 				<p>
@@ -523,11 +573,17 @@ const Survey = () => {
 	return (
 		<DefaultStep
 			content={
-				<div className="survey-container"> { defaultStepContent } </div>
-			}
-			actions={
 				<>
-					<PreviousStepLink before>
+					<div className="mb-4">
+						<h1 className="mb-4 text-3xl font-bold text-zip-app-heading">
+							{ __( 'Okay, just one last step…', 'astra-sites' ) }
+						</h1>
+					</div>
+					<div className="survey-container">
+						{ ' ' }
+						{ defaultStepContent }{ ' ' }
+					</div>
+					<PreviousStepLink>
 						{ __( 'Back', 'astra-sites' ) }
 					</PreviousStepLink>
 				</>

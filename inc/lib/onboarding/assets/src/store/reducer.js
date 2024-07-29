@@ -5,25 +5,30 @@ let currentIndexKey = 0;
 let builderKey = 'gutenberg';
 
 if ( astraSitesVars.default_page_builder ) {
-	currentIndexKey = 2;
+	currentIndexKey = 0;
 	builderKey =
 		astraSitesVars.default_page_builder === 'brizy'
 			? 'gutenberg'
 			: astraSitesVars.default_page_builder;
 }
 
+export const siteLogoDefault = {
+	id: '',
+	thumbnail: '',
+	url: '',
+	width: 120,
+};
+
 export const initialState = {
 	allSitesData: astraSitesVars.all_sites || {},
 	allCategories: astraSitesVars.allCategories || [],
 	allCategoriesAndTags: astraSitesVars.allCategoriesAndTags || [],
-	currentIndex: currentIndexKey,
+	aiActivePallette: null,
+	aiActiveTypography: null,
+	aiSiteLogo: siteLogoDefault,
+	currentIndex: 'ai-builder' === builderKey ? 0 : currentIndexKey,
 	currentCustomizeIndex: 0,
-	siteLogo: {
-		id: '',
-		thumbnail: '',
-		url: '',
-		width: 120,
-	},
+	siteLogo: siteLogoDefault,
 	activePaletteSlug: 'default',
 	activePalette: {},
 	typography: {},
@@ -37,7 +42,7 @@ export const initialState = {
 	selectedMegaMenu: '',
 	siteSearchTerm: getURLParmsValue( window.location.search, 's' ) || '',
 	userSubscribed: false,
-	showSidebar: true,
+	showSidebar: window && window?.innerWidth < 1024 ? false : true,
 	tryAgainCount: 0,
 	pluginInstallationAttempts: 0,
 	confettiDone: false,
@@ -47,6 +52,7 @@ export const initialState = {
 	templateResponse: null,
 	requiredPlugins: null,
 	fileSystemPermissions: null,
+	selectedTemplateID: '',
 	selectedTemplateName: '',
 	selectedTemplateType: '',
 
@@ -73,9 +79,12 @@ export const initialState = {
 		tryAgain: false,
 	},
 	importErrorResponse: [],
+	importTimeTaken: {},
 
-	customizerImportFlag: true,
-	themeActivateFlag: true,
+	customizerImportFlag:
+		astraSitesVars.default_page_builder === 'fse' ? false : true,
+	themeActivateFlag:
+		astraSitesVars.default_page_builder === 'fse' ? false : true,
 	widgetImportFlag: true,
 	contentImportFlag: true,
 	analyticsFlag: starterTemplates.analytics !== 'yes' ? true : false,
@@ -92,11 +101,24 @@ export const initialState = {
 	validateLicenseStatus: false,
 
 	// Staging connected.
-	stagingConnected: astraSitesVars.staging_connected !== 'yes' ? '' : '&draft=' + astraSitesVars.staging_connected,
+	stagingConnected:
+		astraSitesVars.staging_connected !== 'yes'
+			? ''
+			: '&draft=' + astraSitesVars.staging_connected,
 
 	// Search.
 	searchTerms: [],
 	searchTermsWithCount: [],
+	enabledFeatureIds: [],
+	dismissAINotice: astraSitesVars.dismiss_ai_notice,
+
+	// Sync Library.
+	bgSyncInProgress: !! astraSitesVars.bgSyncInProgress,
+
+	// Limit exceed modal for AI-Builder.
+	limitExceedModal: {
+		open: false,
+	},
 };
 
 const reducer = ( state = initialState, { type, ...rest } ) => {

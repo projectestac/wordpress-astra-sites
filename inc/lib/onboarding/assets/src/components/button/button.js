@@ -12,6 +12,7 @@ const Button = ( {
 	mb1,
 	ml1,
 	disabled,
+	type,
 } ) => {
 	return (
 		<Wrap
@@ -24,6 +25,7 @@ const Button = ( {
 			before={ before }
 			onClick={ onClick }
 			disabled={ disabled }
+			type={ type }
 		>
 			{ before ? (
 				<svg

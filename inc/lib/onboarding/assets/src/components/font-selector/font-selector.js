@@ -1,6 +1,6 @@
 import React from 'react';
-import { __ } from '@wordpress/i18n';
 import { Tooltip } from '@brainstormforce/starter-templates-components';
+import { __ } from '@wordpress/i18n';
 import Button from '../../components/button/button';
 import { useStateValue } from '../../store/store';
 import './style.scss';
@@ -51,15 +51,15 @@ const List = ( { className, options, onSelect, selected, type } ) => {
 						key={ id }
 					>
 						<li
-							className={ `
-						ist-font
-						${ id === selected ? 'active' : '' }
-						` }
+							className={ `ist-font ${
+								id === selected ? 'active' : ''
+							}` }
 							key={ id }
 							onClick={ ( event ) => {
 								onSelect( event, id );
 							} }
 							tabIndex="0"
+							role="presentation"
 							onKeyDown={ ( event ) => {
 								handleKeyPress( event, id );
 							} }
@@ -71,7 +71,8 @@ const List = ( { className, options, onSelect, selected, type } ) => {
 											<span
 												style={ {
 													fontFamily: headingFont,
-													fontWeight: headingFontWeight,
+													fontWeight:
+														headingFontWeight,
 												} }
 												className="heading-font-preview"
 											>
@@ -96,7 +97,8 @@ const List = ( { className, options, onSelect, selected, type } ) => {
 											<span
 												style={ {
 													fontFamily: headingFont,
-													fontWeight: headingFontWeight,
+													fontWeight:
+														headingFontWeight,
 												} }
 												className="heading-font-preview"
 											>

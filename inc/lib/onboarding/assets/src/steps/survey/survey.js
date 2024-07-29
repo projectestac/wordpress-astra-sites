@@ -9,7 +9,7 @@ const SurveyForm = ( { updateFormDetails } ) => {
 
 	return (
 		<>
-			<p className="label-text row-label">
+			<p className="label-text row-label !mb-2">
 				{ __( 'Tell us a little bit about yourself', 'astra-sites' ) }
 			</p>
 			<div className="survey-fields-wrap">
@@ -90,25 +90,6 @@ const SurveyForm = ( { updateFormDetails } ) => {
 					</option>
 				</select>
 			</div>
-			<label
-				className="subscription-agreement-checkbox-label"
-				htmlFor="OPT_IN"
-			>
-				<input
-					className="subscription-agreement-checkbox"
-					type="checkbox"
-					name="OPT_IN"
-					id="OPT_IN"
-					value={ false }
-					onChange={ ( event ) =>
-						updateFormDetails( 'opt_in', event.target.checked )
-					}
-				/>
-				{ __(
-					'I agree to receive your newsletters and accept the data privacy statement.',
-					'astra-sites'
-				) }
-			</label>
 		</>
 	);
 };

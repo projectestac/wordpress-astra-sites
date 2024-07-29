@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
 import Lottie from 'react-lottie-player';
+import { __, sprintf } from '@wordpress/i18n';
 import PreviousStepLink from '../../components/util/previous-step-link/index';
 import DefaultStep from '../../components/default-step/index';
 import ImportLoader from '../../components/import-steps/import-loader';
 import ErrorScreen from '../../components/error/index';
 import { useStateValue } from '../../store/store';
 import lottieJson from '../../../images/website-building.json';
+import ICONS from '../../../icons';
 import sseImport from './sse-import';
 import {
 	installAstra,
@@ -19,6 +20,7 @@ import {
 } from './import-utils';
 const { reportError } = starterTemplates;
 let sendReportFlag = reportError;
+const successMessageDelay = 8000; // 8 seconds delay for fully assets load.
 
 import './style.scss';
 
@@ -32,7 +34,6 @@ const ImportSite = () => {
 			templateResponse,
 			reset,
 			themeStatus,
-			currentIndex,
 			importError,
 			siteLogo,
 			activePalette,
@@ -63,6 +64,7 @@ const ImportSite = () => {
 	 * @param {string} text      Text received from the AJAX call.
 	 * @param {string} code      Error code received from the AJAX call.
 	 * @param {string} solution  Solution provided for the current error.
+	 * @param {string} stack
 	 */
 	const report = (
 		primary = '',
@@ -114,7 +116,8 @@ const ImportSite = () => {
 			return;
 		}
 		const reportErr = new FormData();
-		reportErr.append( 'action', 'report_error' );
+		reportErr.append( 'action', 'astra-sites-report_error' );
+		reportErr.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 		reportErr.append(
 			'error',
 			JSON.stringify( {
@@ -145,6 +148,7 @@ const ImportSite = () => {
 		let formsStatus = false;
 		let customizerStatus = false;
 		let spectraStatus = false;
+		let sureCartStatus = false;
 
 		resetStatus = await resetOldSite();
 
@@ -161,11 +165,15 @@ const ImportSite = () => {
 		}
 
 		if ( customizerStatus ) {
-			spectraStatus =await importSiteContent();
+			spectraStatus = await importSpectraSettings();
 		}
 
 		if ( spectraStatus ) {
-			await ImportSpectraSettings();
+			sureCartStatus = await importSureCartSettings();
+		}
+
+		if ( sureCartStatus ) {
+			await importSiteContent();
 		}
 	};
 
@@ -221,6 +229,7 @@ const ImportSite = () => {
 					init: plugin.init,
 					name: plugin.name,
 					clear_destination: true,
+					ajax_nonce: astraSitesVars._ajax_nonce,
 					success() {
 						dispatch( {
 							type: 'set',
@@ -293,6 +302,8 @@ const ImportSite = () => {
 
 	/**
 	 * Activate Plugin
+	 *
+	 * @param {Object} plugin
 	 */
 	const activatePlugin = ( plugin ) => {
 		percentage += 2;
@@ -309,7 +320,7 @@ const ImportSite = () => {
 		const activatePluginOptions = new FormData();
 		activatePluginOptions.append(
 			'action',
-			'astra-required-plugin-activate'
+			'astra-sites-required_plugin_activate'
 		);
 		activatePluginOptions.append( 'init', plugin.init );
 		activatePluginOptions.append(
@@ -415,11 +426,12 @@ const ImportSite = () => {
 	/**
 	 * 1. Reset.
 	 * The following steps are covered here.
-	 * 		1. Reset Customizer
-	 * 		2. Reset Site Options
-	 * 		3. Reset Widgets
-	 * 		4. Reset Forms and Terms
-	 * 		5. Reset all posts
+	 * 		1. Settings backup file store.
+	 * 		2. Reset Customizer
+	 * 		3. Reset Site Options
+	 * 		4. Reset Widgets
+	 * 		5. Reset Forms and Terms
+	 * 		6. Reset all posts
 	 */
 	const resetOldSite = async () => {
 		if ( ! reset ) {
@@ -432,6 +444,7 @@ const ImportSite = () => {
 			importPercent: percentage,
 		} );
 
+		let backupFileStatus = false;
 		let resetCustomizerStatus = false;
 		let resetWidgetStatus = false;
 		let resetOptionsStatus = false;
@@ -439,9 +452,16 @@ const ImportSite = () => {
 		let resetPostsStatus = false;
 
 		/**
+		 * Settings backup file store.
+		 */
+		backupFileStatus = await performSettingsBackup();
+
+		/**
 		 * Reset Customizer.
 		 */
-		resetCustomizerStatus = await performResetCustomizer();
+		if ( backupFileStatus ) {
+			resetCustomizerStatus = await performResetCustomizer();
+		}
 
 		/**
 		 * Reset Site Options.
@@ -486,7 +506,7 @@ const ImportSite = () => {
 		percentage += 10;
 		dispatch( {
 			type: 'set',
-			importPercent: percentage,
+			importPercent: percentage >= 50 ? 50 : percentage,
 			importStatus: __( 'Reset for old website is done.', 'astra-sites' ),
 		} );
 
@@ -495,10 +515,12 @@ const ImportSite = () => {
 
 	/**
 	 * Reset a chunk of posts.
+	 *
+	 * @param {Object} chunk
 	 */
 	const performPostsReset = async ( chunk ) => {
 		const data = new FormData();
-		data.append( 'action', 'astra-sites-get-deleted-post-ids' );
+		data.append( 'action', 'astra-sites-get_deleted_post_ids' );
 		data.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
 		dispatch( {
@@ -507,7 +529,7 @@ const ImportSite = () => {
 		} );
 
 		const formOption = new FormData();
-		formOption.append( 'action', 'astra-sites-reset-posts' );
+		formOption.append( 'action', 'astra-sites-reset_posts' );
 		formOption.append( 'ids', JSON.stringify( chunk ) );
 		formOption.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
@@ -526,7 +548,7 @@ const ImportSite = () => {
 						percentage += 2;
 						dispatch( {
 							type: 'set',
-							importPercent: percentage <= 70 ? percentage : 70,
+							importPercent: percentage >= 50 ? 50 : percentage,
 						} );
 					} else {
 						throw result;
@@ -564,6 +586,50 @@ const ImportSite = () => {
 	};
 
 	/**
+	 * 1.0 Perform Settings backup file stored.
+	 */
+	const performSettingsBackup = async () => {
+		dispatch( {
+			type: 'set',
+			importStatus: __( 'Taking settings backup.', 'astra-sites' ),
+		} );
+
+		const customizerContent = new FormData();
+		customizerContent.append( 'action', 'astra-sites-backup_settings' );
+		customizerContent.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
+
+		const status = await fetch( ajaxurl, {
+			method: 'post',
+			body: customizerContent,
+		} )
+			.then( ( response ) => response.text() )
+			.then( ( text ) => {
+				const response = JSON.parse( text );
+				if ( response.success ) {
+					percentage += 2;
+					dispatch( {
+						type: 'set',
+						importPercent: percentage,
+					} );
+					return true;
+				}
+				throw response.data;
+			} )
+			.catch( ( error ) => {
+				report(
+					__( 'Taking settings backup failed.', 'astra-sites' ),
+					'',
+					error?.message,
+					'',
+					'',
+					error
+				);
+				return false;
+			} );
+		return status;
+	};
+
+	/**
 	 * 1.1 Perform Reset for Customizer.
 	 */
 	const performResetCustomizer = async () => {
@@ -575,7 +641,7 @@ const ImportSite = () => {
 		const customizerContent = new FormData();
 		customizerContent.append(
 			'action',
-			'astra-sites-reset-customizer-data'
+			'astra-sites-reset_customizer_data'
 		);
 		customizerContent.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
@@ -633,7 +699,7 @@ const ImportSite = () => {
 		} );
 
 		const siteOptions = new FormData();
-		siteOptions.append( 'action', 'astra-sites-reset-site-options' );
+		siteOptions.append( 'action', 'astra-sites-reset_site_options' );
 		siteOptions.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
 		const status = await fetch( ajaxurl, {
@@ -684,7 +750,7 @@ const ImportSite = () => {
 	 */
 	const performResetWidget = async () => {
 		const widgets = new FormData();
-		widgets.append( 'action', 'astra-sites-reset-widgets-data' );
+		widgets.append( 'action', 'astra-sites-reset_widgets_data' );
 		widgets.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
 		dispatch( {
@@ -742,7 +808,7 @@ const ImportSite = () => {
 	 */
 	const performResetTermsAndForms = async () => {
 		const formOption = new FormData();
-		formOption.append( 'action', 'astra-sites-reset-terms-and-forms' );
+		formOption.append( 'action', 'astra-sites-reset_terms_and_forms' );
 		formOption.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
 		dispatch( {
@@ -801,7 +867,7 @@ const ImportSite = () => {
 	 */
 	const performResetPosts = async () => {
 		const data = new FormData();
-		data.append( 'action', 'astra-sites-get-deleted-post-ids' );
+		data.append( 'action', 'astra-sites-get_deleted_post_ids' );
 		data.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
 		dispatch( {
@@ -863,7 +929,6 @@ const ImportSite = () => {
 
 		const flows = new FormData();
 		flows.append( 'action', 'astra-sites-import-cartflows' );
-		flows.append( 'cartflows_url', cartflowsUrl );
 		flows.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
 		const status = await fetch( ajaxurl, {
@@ -927,7 +992,6 @@ const ImportSite = () => {
 
 		const flows = new FormData();
 		flows.append( 'action', 'astra-sites-import-wpforms' );
-		flows.append( 'wpforms_url', wpformsUrl );
 		flows.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
 		const status = await fetch( ajaxurl, {
@@ -942,7 +1006,7 @@ const ImportSite = () => {
 						percentage += 2;
 						dispatch( {
 							type: 'set',
-							importPercent: percentage,
+							importPercent: percentage >= 60 ? 60 : percentage,
 						} );
 						return true;
 					}
@@ -981,7 +1045,7 @@ const ImportSite = () => {
 			percentage += 5;
 			dispatch( {
 				type: 'set',
-				importPercent: percentage,
+				importPercent: percentage >= 65 ? 65 : percentage,
 			} );
 			return true;
 		}
@@ -991,7 +1055,7 @@ const ImportSite = () => {
 		} );
 
 		const forms = new FormData();
-		forms.append( 'action', 'astra-sites-import-customizer-settings' );
+		forms.append( 'action', 'astra-sites-import_customizer_settings' );
 		forms.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
 		const status = await fetch( ajaxurl, {
@@ -1006,7 +1070,7 @@ const ImportSite = () => {
 						percentage += 5;
 						dispatch( {
 							type: 'set',
-							importPercent: percentage,
+							importPercent: percentage >= 65 ? 65 : percentage,
 						} );
 						return true;
 					}
@@ -1046,7 +1110,7 @@ const ImportSite = () => {
 			percentage += 20;
 			dispatch( {
 				type: 'set',
-				importPercent: percentage,
+				importPercent: percentage >= 80 ? 80 : percentage,
 				xmlImportDone: true,
 			} );
 			return true;
@@ -1076,8 +1140,7 @@ const ImportSite = () => {
 		} );
 
 		const content = new FormData();
-		content.append( 'action', 'astra-sites-import-prepare-xml' );
-		content.append( 'wxr_url', wxrUrl );
+		content.append( 'action', 'astra-sites-import_prepare_xml' );
 		content.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
 		const status = await fetch( ajaxurl, {
@@ -1091,7 +1154,7 @@ const ImportSite = () => {
 					percentage += 2;
 					dispatch( {
 						type: 'set',
-						importPercent: percentage <= 80 ? percentage : 80,
+						importPercent: percentage >= 80 ? 80 : percentage,
 					} );
 					if ( false === data.success ) {
 						const errorMsg = data.data.error || data.data;
@@ -1130,11 +1193,11 @@ const ImportSite = () => {
 	/**
 	 * 6. Import Spectra Settings.
 	 */
-	 const ImportSpectraSettings = async () => {
-		const spectra_settings =
-			encodeURI( templateResponse[ 'astra-site-spectra-settings' ] ) || '';
+	const importSpectraSettings = async () => {
+		const spectraSettings =
+			templateResponse[ 'astra-site-spectra-options' ] || '';
 
-		if ( '' === spectra_settings || 'null' === spectra_settings ) {
+		if ( '' === spectraSettings || 'null' === spectraSettings ) {
 			return true;
 		}
 
@@ -1144,8 +1207,7 @@ const ImportSite = () => {
 		} );
 
 		const spectra = new FormData();
-		spectra.append( 'action', 'astra-sites-import-spectra-settings' );
-		spectra.append( 'spectra_settings', spectra_settings );
+		spectra.append( 'action', 'astra-sites-import_spectra_settings' );
 		spectra.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
 		const status = await fetch( ajaxurl, {
@@ -1160,7 +1222,7 @@ const ImportSite = () => {
 						percentage += 2;
 						dispatch( {
 							type: 'set',
-							importPercent: percentage,
+							importPercent: percentage >= 75 ? 75 : percentage,
 						} );
 						return true;
 					}
@@ -1190,7 +1252,68 @@ const ImportSite = () => {
 			} );
 		return status;
 	};
-		
+
+	/**
+	 * 7. Import Surecart Settings.
+	 */
+	const importSureCartSettings = async () => {
+		const sourceID =
+			templateResponse?.[ 'astra-site-surecart-settings' ]?.id || '';
+		const sourceCurrency =
+			templateResponse?.[ 'astra-site-surecart-settings' ]?.currency ||
+			'usd';
+		if ( '' === sourceID || 'null' === sourceID ) {
+			return true;
+		}
+		const surecart = new FormData();
+		surecart.append( 'action', 'astra-sites-import_surecart_settings' );
+		surecart.append( 'source_id', sourceID );
+		surecart.append( 'source_currency', sourceCurrency );
+		surecart.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
+
+		const status = await fetch( ajaxurl, {
+			method: 'post',
+			body: surecart,
+		} )
+			.then( ( response ) => response.text() )
+			.then( ( text ) => {
+				try {
+					const data = JSON.parse( text );
+					if ( data.success ) {
+						percentage += 2;
+						dispatch( {
+							type: 'set',
+							importPercent: percentage >= 75 ? 75 : percentage,
+						} );
+						return true;
+					}
+					throw data.data;
+				} catch ( error ) {
+					report(
+						__(
+							'Importing Surecart Settings failed.',
+							'astra-sites'
+						),
+						'',
+						error,
+						'',
+						'',
+						text
+					);
+					return false;
+				}
+			} )
+			.catch( ( error ) => {
+				report(
+					__( 'Importing Surecart Settings Failed.', 'astra-sites' ),
+					'',
+					error
+				);
+				return false;
+			} );
+		return status;
+	};
+
 	/**
 	 * Imports XML using EventSource.
 	 *
@@ -1230,15 +1353,17 @@ const ImportSite = () => {
 		};
 
 		evtSource.onerror = ( error ) => {
-			evtSource.close();
-			report(
-				__(
-					'Importing Site Content Failed. - Import Process Interrupted',
-					'astra-sites'
-				),
-				'',
-				error
-			);
+			if ( ! ( error && error?.isTrusted ) ) {
+				evtSource.close();
+				report(
+					__(
+						'Importing Site Content Failed. - Import Process Interrupted',
+						'astra-sites'
+					),
+					'',
+					error
+				);
+			}
 		};
 
 		evtSource.addEventListener( 'log', function ( message ) {
@@ -1271,7 +1396,7 @@ const ImportSite = () => {
 		} );
 
 		const siteOptions = new FormData();
-		siteOptions.append( 'action', 'astra-sites-import-options' );
+		siteOptions.append( 'action', 'astra-sites-import_options' );
 		siteOptions.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
 		const status = await fetch( ajaxurl, {
@@ -1286,7 +1411,7 @@ const ImportSite = () => {
 						percentage += 5;
 						dispatch( {
 							type: 'set',
-							importPercent: percentage,
+							importPercent: percentage >= 90 ? 90 : percentage,
 						} );
 						return true;
 					}
@@ -1337,7 +1462,7 @@ const ImportSite = () => {
 		const widgetsData = templateResponse[ 'astra-site-widgets-data' ] || '';
 
 		const widgets = new FormData();
-		widgets.append( 'action', 'astra-sites-import-widgets' );
+		widgets.append( 'action', 'astra-sites-import_widgets' );
 		widgets.append( 'widgets_data', widgetsData );
 		widgets.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
 
@@ -1407,9 +1532,8 @@ const ImportSite = () => {
 		} );
 
 		const finalSteps = new FormData();
-		finalSteps.append( 'action', 'astra-sites-import-end' );
+		finalSteps.append( 'action', 'astra-sites-import_end' );
 		finalSteps.append( '_ajax_nonce', astraSitesVars._ajax_nonce );
-		let counter = 3;
 
 		const status = await fetch( ajaxurl, {
 			method: 'post',
@@ -1420,31 +1544,14 @@ const ImportSite = () => {
 				try {
 					const data = JSON.parse( text );
 					if ( data.success ) {
-						dispatch( {
-							type: 'set',
-							importPercent: 100,
-							importEnd: true,
-						} );
-
 						localStorage.setItem( 'st-import-end', +new Date() );
-						setInterval( function () {
-							counter--;
-							const counterEl = document.getElementById(
-								'redirect-counter'
-							);
-							if ( counterEl ) {
-								if ( counter < 0 ) {
-									dispatch( {
-										type: 'set',
-										currentIndex: currentIndex + 1,
-									} );
-								} else {
-									const timeType =
-										counter <= 1 ? ' second…' : ' seconds…';
-									counterEl.innerHTML = counter + timeType;
-								}
-							}
-						}, 1000 );
+						setTimeout( function () {
+							dispatch( {
+								type: 'set',
+								importPercent: 100,
+								importEnd: true,
+							} );
+						}, successMessageDelay );
 						return true;
 					}
 					throw data.data;
@@ -1460,32 +1567,15 @@ const ImportSite = () => {
 						'',
 						text
 					);
-
-					dispatch( {
-						type: 'set',
-						importPercent: 100,
-						importEnd: true,
-					} );
+					setTimeout( function () {
+						dispatch( {
+							type: 'set',
+							importPercent: 100,
+							importEnd: true,
+						} );
+					}, successMessageDelay );
 
 					localStorage.setItem( 'st-import-end', +new Date() );
-					setInterval( function () {
-						counter--;
-						const counterEl = document.getElementById(
-							'redirect-counter'
-						);
-						if ( counterEl ) {
-							if ( counter < 0 ) {
-								dispatch( {
-									type: 'set',
-									currentIndex: currentIndex + 1,
-								} );
-							} else {
-								const counterText =
-									counter <= 1 ? ' second…' : ' seconds…';
-								counterEl.innerHTML = counter + counterText;
-							}
-						}
-					}, 1000 );
 					return false;
 				}
 			} )
@@ -1502,18 +1592,28 @@ const ImportSite = () => {
 	};
 
 	const preventRefresh = ( event ) => {
-		event.returnValue = __(
-			'Are you sure you want to cancel the site import process?',
-			'astra-sites'
-		);
-		return event;
+		if ( importPercent < 100 ) {
+			event.returnValue = __(
+				'Are you sure you want to cancel the site import process?',
+				'astra-sites'
+			);
+			return event;
+		}
 	};
 
 	useEffect( () => {
 		window.addEventListener( 'beforeunload', preventRefresh ); // eslint-disable-line
-		return () =>
+		return () => {
 			window.removeEventListener( 'beforeunload', preventRefresh ); // eslint-disable-line
-	} );
+		};
+	}, [ importPercent ] ); // Add importPercent as a dependency.
+
+	// Add a useEffect to remove the event listener when importPercent is 100%.
+	useEffect( () => {
+		if ( importPercent === 100 ) {
+			window.removeEventListener( 'beforeunload', preventRefresh );
+		}
+	}, [ importPercent ] );
 
 	/**
 	 * When try again button is clicked:
@@ -1606,12 +1706,19 @@ const ImportSite = () => {
 			content={
 				<div className="middle-content middle-content-import">
 					<>
-						<h1>
-							{ __(
-								'We are building your website…',
-								'astra-sites'
-							) }
-						</h1>
+						{ importPercent === 100 ? (
+							<h1 className="import-done-congrats">
+								{ __( 'Congratulations', 'astra-sites' ) }
+								<span>{ ICONS.tada }</span>
+							</h1>
+						) : (
+							<h1>
+								{ __(
+									'We are building your website…',
+									'astra-sites'
+								) }
+							</h1>
+						) }
 						{ importError && (
 							<div className="ist-import-process-step-wrap">
 								<ErrorScreen />
@@ -1622,15 +1729,17 @@ const ImportSite = () => {
 								<div className="ist-import-process-step-wrap">
 									<ImportLoader />
 								</div>
-								<Lottie
-									loop
-									animationData={ lottieJson }
-									play
-									style={ {
-										height: 400,
-										margin: '-70px auto -90px auto',
-									} }
-								/>
+								{ importPercent !== 100 && (
+									<Lottie
+										loop
+										animationData={ lottieJson }
+										play
+										style={ {
+											height: 400,
+											margin: '-70px auto -90px auto',
+										} }
+									/>
+								) }
 							</>
 						) }
 					</>

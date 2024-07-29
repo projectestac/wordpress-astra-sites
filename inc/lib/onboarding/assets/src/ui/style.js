@@ -29,13 +29,13 @@ export const Button = styled.button`
 	align-items: center;
 	position: relative;
 	background: var( --st-color-accent );
-	border-radius: var( --st-border-radius-4 );
+	border-radius: var( --st-border-radius-6 );
 	margin: 0;
 	cursor: pointer;
 	line-height: 1;
 	font-size: 15px;
 	font-weight: var( --st-font-weight-bold );
-	padding: 15px 32px;
+	padding: 15px 28px;
 	transition: background 200ms ease-in-out;
 
 	&:hover {
@@ -85,8 +85,14 @@ export const Button = styled.button`
 		'secondary' === props.type &&
 		`
 		background: #f6f7f7;
-		color: #2271b1;
+		color: #2563EB;
 		border-color: #2271b1;
+		&:hover {
+			background: #f6f7f7;
+		}
+		&:focus {
+			background: #f6f7f7;
+		}
     ` }
 `;
 
@@ -114,7 +120,7 @@ export const Link = styled.span`
 	}
 
 	${ ( props ) =>
-		props.before &&
+		props.$before &&
 		`
 		svg {
 			margin-right: 10px;
@@ -122,7 +128,7 @@ export const Link = styled.span`
 	` }
 
 	${ ( props ) =>
-		props.after &&
+		props.$after &&
 		`
 		svg {
 			margin-left: 10px;

@@ -46,8 +46,6 @@ if ( ! class_exists( 'Astra_Sites_Admin' ) ) :
 		 * @since 2.3.7
 		 */
 		private function __construct() {
-			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
-			add_action( 'load-index.php', array( $this, 'admin_dashboard_notices' ) );
 			add_action( 'astra_notice_before_markup', array( $this, 'notice_assets' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ) );
 			add_action( 'astra_sites_after_site_grid', array( $this, 'custom_upgrade_cta' ) );
@@ -109,7 +107,7 @@ if ( ! class_exists( 'Astra_Sites_Admin' ) ) :
 				'astra_sites_custom_cta_vars',
 				array(
 					'text'        => __( 'Get unlimited access to all premium Starter Templates and more, at a single low cost!', 'astra-sites' ),
-					'button_text' => __( 'Get Essential Bundle', 'astra-sites' ),
+					'button_text' => __( 'Get Essential Toolkit', 'astra-sites' ),
 					'cta_link'    => Astra_Sites::get_instance()->get_cta_link(),
 				)
 			);
@@ -121,139 +119,6 @@ if ( ! class_exists( 'Astra_Sites_Admin' ) ) :
 			$html .= '</span>';
 			$html .= '</div>';
 			echo wp_kses_post( $html );
-		}
-
-		/**
-		 * Admin Notices
-		 *
-		 * @since 2.3.7
-		 * @return void
-		 */
-		public function admin_notices() {
-
-			$image_path = esc_url( ASTRA_SITES_URI . 'inc/assets/images/logo.svg' );
-
-			$complete = get_option( 'astra_sites_import_complete', '' );
-
-			Astra_Notices::add_notice(
-				array(
-					'id'      => 'astra-sites-5-start-notice',
-					'type'    => 'info',
-					'class'   => 'astra-sites-5-star',
-					'show_if' => ( 'yes' === $complete && false === Astra_Sites_White_Label::get_instance()->is_white_labeled() ),
-					/* translators: %1$s white label plugin name and %2$s deactivation link */
-					'message' => sprintf(
-						'<div class="notice-image" style="display: flex;">
-							<img src="%1$s" class="custom-logo" alt="Starter Templates" itemprop="logo" style="max-width: 90px;"></div>
-							<div class="notice-content">
-								<div class="notice-heading">
-									%2$s
-								</div>
-								%3$s<br />
-								<div class="astra-review-notice-container">
-									<a href="%4$s" class="astra-notice-close astra-review-notice button-primary" target="_blank">
-									%5$s
-									</a>
-								<span class="dashicons dashicons-calendar"></span>
-									<a href="#" data-repeat-notice-after="%6$s" class="astra-notice-close astra-review-notice">
-									%7$s
-									</a>
-								<span class="dashicons dashicons-smiley"></span>
-									<a href="#" class="astra-notice-close astra-review-notice">
-									%8$s
-									</a>
-								</div>
-							</div>',
-						$image_path,
-						__( 'Hello! Seems like you have used Starter Templates to build this website &mdash; Thanks a ton!', 'astra-sites' ),
-						__( 'Could you please do us a BIG favor and give it a 5-star rating on WordPress? This would boost our motivation and help other users make a comfortable decision while choosing the Starter Templates.', 'astra-sites' ),
-						'https://wordpress.org/support/plugin/astra-sites/reviews/?filter=5#new-post',
-						__( 'Ok, you deserve it', 'astra-sites' ),
-						MONTH_IN_SECONDS,
-						__( 'Nope, maybe later', 'astra-sites' ),
-						__( 'I already did', 'astra-sites' )
-					),
-				)
-			);
-		}
-
-		/**
-		 * Admin Dashboard Notices.
-		 *
-		 * @since 3.1.17
-		 * @return void
-		 */
-		public function admin_dashboard_notices() {
-			add_action( 'admin_notices', array( $this, 'admin_welcome_notices' ) );
-		}
-
-		/**
-		 * Admin Welcome Notice.
-		 *
-		 * @since 3.1.17
-		 * @return void
-		 */
-		public function admin_welcome_notices() {
-			$first_import_status = get_option( 'astra_sites_import_complete', false );
-			Astra_Notices::add_notice(
-				array(
-					'id'      => 'astra-sites-welcome-notice',
-					'type'    => 'notice',
-					'class'   => 'astra-sites-welcome',
-					'show_if' => ( false === Astra_Sites_White_Label::get_instance()->is_white_labeled() && empty( $first_import_status ) ),
-					/* translators: %1$s white label plugin name and %2$s deactivation link */
-					'message' => sprintf(
-						'<div class="notice-welcome-container">	
-							<div class="text-section">
-								<h1 class="text-heading">' . __( 'Welcome to Starter Templates!', 'astra-sites' ) . '</h1>
-								<p>' . __( 'Create professionally designed pixel-perfect websites in minutes.', 'astra-sites' ) . '</p>
-								<a href="/wp-admin/themes.php?page=starter-templates" class="text-button">' . __( 'Get Started', 'astra-sites' ) . '</a>
-							</div>
-							<div class="showcase-section">
-								<img src="' . esc_url( ASTRA_SITES_URI . 'inc/assets/images/templates-showcase.png' ) . '" />
-							</div>
-						</div>
-						<div class="notice-content-container">
-							<div class="content-section">
-								<div class="icon-section">
-								<img src="' . esc_url( ASTRA_SITES_URI . 'inc/assets/images/dashicons-cart.svg' ) . '" /></div>
-								<div class="link-section">
-									<h4>' . __( 'Ecommerce', 'astra-sites' ) . '</h4>
-									<p>' . __( 'Looking for a fully operational eCommerce template to launch a store or level up an existing one?', 'astra-sites' ) . '</p>
-									<a href="/wp-admin/themes.php?page=starter-templates&ci=2&s=E-Commerce">' . __( 'View Ecommerce Templates', 'astra-sites' ) . ' →</a>
-								</div>
-							</div>
-							<div class="content-section">
-								<div class="icon-section">
-								<img src="' . esc_url( ASTRA_SITES_URI . 'inc/assets/images/dashicons-building.svg' ) . '" /></div>
-								<div class="link-section">
-									<h4>' . __( 'Local Business', 'astra-sites' ) . '</h4>
-									<p>' . __( 'Fully customizable local business templates that can deliver a fully functioning website in minutes', 'astra-sites' ) . '</p>
-									<a href="/wp-admin/themes.php?page=starter-templates&ci=2&s=Business">' . __( 'View Local Business Templates', 'astra-sites' ) . ' →</a>
-								</div>
-							</div>
-							<div class="content-section">
-								<div class="icon-section">
-								<img src="' . esc_url( ASTRA_SITES_URI . 'inc/assets/images/dashicons-megaphone.svg' ) . '" /></div>
-								<div class="link-section">
-									<h4>' . __( 'Agency', 'astra-sites' ) . '</h4>
-									<p>' . __( 'Do more in less time with Starter Templates. Pro-quality designs that can be fully customized to suit your clients.', 'astra-sites' ) . '</p>
-									<a href="/wp-admin/themes.php?page=starter-templates&ci=2&s=Agency">' . __( 'View Agency Templates', 'astra-sites' ) . ' →</a>
-								</div>
-							</div>
-							<div class="content-section">
-								<div class="icon-section">
-								<img src="' . esc_url( ASTRA_SITES_URI . 'inc/assets/images/dashicons-welcome-write-blog.svg' ) . '" /></div>
-								<div class="link-section">
-									<h4>' . __( 'Blog', 'astra-sites' ) . '</h4>
-									<p>' . __( 'Customizable blog templates covering every niche. Page builder compatible, easy to use and fast!', 'astra-sites' ) . '</p>
-									<a href="/wp-admin/themes.php?page=starter-templates&ci=2&s=Blog">' . __( 'View Blog Templates', 'astra-sites' ) . ' →</a>
-								</div>
-							</div>
-						</div>'
-					),
-				)
-			);
 		}
 
 		/**

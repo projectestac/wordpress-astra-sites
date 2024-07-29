@@ -6,10 +6,9 @@ import { useStateValue } from '../../store/store';
 import { CustomizeSteps } from './customize-steps';
 
 const CustomizeSite = () => {
-	const [
-		{ currentCustomizeIndex, currentIndex, builder },
-		dispatch,
-	] = useStateValue();
+	const [ { currentCustomizeIndex, currentIndex, builder }, dispatch ] =
+		useStateValue();
+
 	const currentStepObject = CustomizeSteps[ currentCustomizeIndex ];
 	let CurrentStepContent;
 	let CurrentStepControls;

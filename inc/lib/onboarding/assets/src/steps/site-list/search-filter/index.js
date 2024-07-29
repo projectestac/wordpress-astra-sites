@@ -1,8 +1,8 @@
 import React, { useRef, useEffect } from 'react';
-import { __ } from '@wordpress/i18n';
 import { Search } from '@brainstormforce/starter-templates-components';
-import { decodeEntities } from '@wordpress/html-entities';
 import { useNavigate } from 'react-router-dom';
+import { __ } from '@wordpress/i18n';
+import { decodeEntities } from '@wordpress/html-entities';
 import { useStateValue } from '../../../store/store';
 import './style.scss';
 import { setURLParmsValue } from '../../../utils/url-params';
@@ -76,11 +76,11 @@ const SiteSearch = ( { setSiteData } ) => {
 	useEffect( () => {
 		document
 			.querySelector( '.step-content' )
-			.addEventListener( 'scroll', handleScroll );
+			?.addEventListener( 'scroll', handleScroll );
 		return () =>
 			document
 				.querySelector( '.step-content' )
-				.removeEventListener( 'scroll', handleScroll );
+				?.removeEventListener( 'scroll', handleScroll );
 	}, [] );
 
 	const onSearchKeyUp = ( event ) => {
@@ -130,6 +130,21 @@ const SiteSearch = ( { setSiteData } ) => {
 							if ( response.ids.length ) {
 								for ( const id of response.ids ) {
 									if ( allFilteredSites[ id ] ) {
+										const selectedTemplate =
+											allFilteredSites[ id ];
+										if (
+											selectedTemplate.related_ecommerce_template !==
+												undefined &&
+											selectedTemplate.related_ecommerce_template !==
+												'' &&
+											selectedTemplate.ecommerce_parent_template !==
+												undefined &&
+											selectedTemplate.ecommerce_parent_template !==
+												''
+										) {
+											// If ecommerce_parent_template is not empty, skip adding the site to allSites.
+											continue;
+										}
 										results[ id ] = allFilteredSites[ id ];
 									}
 								}

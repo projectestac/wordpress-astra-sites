@@ -97,7 +97,7 @@ if ( ! class_exists( 'BSF_Quick_Links' ) ) {
 			?>
 			<div class="bsf-quick-link-wrap">
 				<div class="bsf-quick-link-items-wrap hide-wrapper">
-					<?php echo $this->get_links_html( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo $this->get_links_html( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- All attributes are escaped inside of this function. ?>
 				</div>
 				<a href="#" class="bsf-quick-link">
 					<div class="quick-link-button-wrap">

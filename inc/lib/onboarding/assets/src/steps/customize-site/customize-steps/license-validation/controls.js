@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Toaster } from '@brainstormforce/starter-templates-components';
 import { __, sprintf } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
-import { Toaster } from '@brainstormforce/starter-templates-components';
 import Button from '../../../../components/button/button';
 import { useStateValue } from '../../../../store/store';
 import PreviousStepLink from '../../../../components/util/previous-step-link/index';
@@ -106,7 +106,7 @@ const LicenseValidationControls = () => {
 	const downloadLink = sprintf(
 		//translators: %1$s Store page URL.
 		__(
-			`If you have purchased our Essential or Growth Bundle, please install the premium version of the plugin that you can %1$sdownload%2$s from our store.`,
+			`If you have purchased our Essential or Business Toolkits, please install the premium version of the plugin that you can %1$sdownload%2$s from our store.`,
 			'astra-sites'
 		),
 		'<a href="https://store.brainstormforce.com/login/" target="_blank">',
@@ -117,56 +117,63 @@ const LicenseValidationControls = () => {
 		<>
 			{ ! whiteLabelEnabled() && (
 				<>
-				<h4>{ __( 'Already a customer?', 'astra-sites' ) }</h4>
+					<h4>{ __( 'Already a customer?', 'astra-sites' ) }</h4>
 
-				{ validateLicenseStatus && (
-					<p className="customer-notices">
-						{ __(
-							'If you have purchased our Essential or Growth Bundle, just enter your license key below to import this template.',
-							'astra-sites'
-						) }
-					</p>
-				) }
-
-				{ ! validateLicenseStatus && (
-					<>
-						<p
-							className="customer-notices"
-							dangerouslySetInnerHTML={ { __html: downloadLink } }
-						/>
+					{ validateLicenseStatus && (
 						<p className="customer-notices">
 							{ __(
-								'Currently the free version is installed.',
+								'If you have purchased our Essential or Business Toolkits, just enter your license key below to import this template.',
 								'astra-sites'
 							) }
 						</p>
-					</>
-				) }
-				<p
-					className="support-link"
-					dangerouslySetInnerHTML={ { __html: supportLink } }
-				/>
-				{ validateLicenseStatus && (
-					<div className="license-wrap">
-						<input
-							type="text"
-							className="license-key-input"
-							name="license-key"
-							placeholder={ __( 'License key', 'astra-sites' ) }
-							required
-							onChange={ ( e ) => {
-								setLicenseKey( e.target.value );
-								setError( '' );
-							} }
-						/>
-						<Button
-							className={ `validate-btn ${ processingClass }` }
-							onClick={ validateKey }
-						>
-							{ ICONS.arrowRightBold }
-						</Button>
-					</div>
-				) }
+					) }
+
+					{ ! validateLicenseStatus && (
+						<>
+							<p
+								className="customer-notices"
+								dangerouslySetInnerHTML={ {
+									__html: downloadLink,
+								} }
+							/>
+							<p className="customer-notices">
+								{ __(
+									'Currently the free version is installed.',
+									'astra-sites'
+								) }
+							</p>
+						</>
+					) }
+					<p
+						className="support-link"
+						dangerouslySetInnerHTML={ { __html: supportLink } }
+					/>
+					{ validateLicenseStatus && (
+						<div className="license-wrap">
+							<input
+								type="text"
+								className="license-key-input"
+								name="license-key"
+								placeholder={ __(
+									'License key',
+									'astra-sites'
+								) }
+								required
+								onChange={ ( e ) => {
+									setLicenseKey( e.target.value );
+									setError( '' );
+								} }
+							/>
+							<Button
+								className={ `validate-btn ${ processingClass }` }
+								onClick={ validateKey }
+							>
+								{ ! processing
+									? ICONS.arrowRightBold
+									: ICONS.spinner }
+							</Button>
+						</div>
+					) }
 				</>
 			) }
 			<PreviousStepLink onClick={ lastStep } customizeStep={ true }>

@@ -53,6 +53,8 @@ if ( ! class_exists( 'Astra_Sites_Compatibility_WooCommerce' ) ) :
 				add_filter( 'wxr_importer.pre_process.term', array( $this, 'woocommerce_product_attributes_registration' ), 10, 1 );
 				add_action( 'astra_sites_import_complete', array( $this, 'update_wc_lookup_table' ) );
 			}
+			add_filter( 'astra_sites_pre_process_post_disable_content', '__return_false' );
+			add_filter( 'astra_sites_pre_process_post_empty_excerpt', '__return_false' );
 		}
 
 		/**
@@ -135,7 +137,7 @@ if ( ! class_exists( 'Astra_Sites_Compatibility_WooCommerce' ) ) :
 							'attribute_orderby' => 'menu_order',
 							'attribute_public'  => 0,
 						);
-						$wpdb->insert( $wpdb->prefix . 'woocommerce_attribute_taxonomies', $attribute );
+						$wpdb->insert( $wpdb->prefix . 'woocommerce_attribute_taxonomies', $attribute ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- WP Query would be expensive here, we are adding taxonomy attributes for WooCommerce.
 						delete_transient( 'wc_attribute_taxonomies' );
 					}
 

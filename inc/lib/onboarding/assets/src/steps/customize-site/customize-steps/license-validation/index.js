@@ -16,7 +16,7 @@ const LicenseValidation = () => {
 	}, [] );
 
 	const accessLinkOutput = __(
-		`This is a premium template and comes with our Essentials and Growth Bundle. <br/><br/> Get access to this premium template and 100+ more.`,
+		`This is a premium template and comes with our Essentials and Business Toolkits. <br/><br/> Get access to this premium template and 100+ more.`,
 		'astra-sites'
 	);
 
@@ -35,18 +35,30 @@ const LicenseValidation = () => {
 			<ChangeTemplate />
 			<div className="customizer-header">
 				<div className="header-name">
-				{ ! whiteLabelEnabled() && (
-					<>
-						<h3 className="ist-customizer-heading">
-							{ __( 'Liked this Starter Template?', 'astra-sites' ) }
-						</h3>
-						<p
-							className="screen-description"
-							dangerouslySetInnerHTML={ { __html: accessLinkOutput } }
-						/>
-					</>
-				) }
-					<Button className="st-access-btn" onClick={ whiteLabelEnabled() ?  getwhiteLabelLink : getAccessLink }>
+					{ ! whiteLabelEnabled() && (
+						<>
+							<h3 className="ist-customizer-heading">
+								{ __(
+									'Liked this Starter Template?',
+									'astra-sites'
+								) }
+							</h3>
+							<p
+								className="screen-description"
+								dangerouslySetInnerHTML={ {
+									__html: accessLinkOutput,
+								} }
+							/>
+						</>
+					) }
+					<Button
+						className="st-access-btn"
+						onClick={
+							whiteLabelEnabled()
+								? getwhiteLabelLink
+								: getAccessLink
+						}
+					>
 						{ __( 'Unlock Access', 'astra-sites' ) }
 						<img
 							className="st-get-access"

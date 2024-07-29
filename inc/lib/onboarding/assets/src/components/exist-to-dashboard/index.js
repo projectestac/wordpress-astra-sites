@@ -1,6 +1,6 @@
 // External dependencies.
 import React from 'react';
-import { Tooltip } from '@brainstormforce/starter-templates-components';
+import Tooltip from '../tooltip';
 import { __ } from '@wordpress/i18n';
 
 // Internal dependencies.
@@ -12,7 +12,7 @@ const ExitToDashboard = () => {
 	return (
 		<a className="st-exit-to-dashboard" href={ adminUrl }>
 			<Tooltip content={ __( 'Exit to Dashboard', 'astra-sites' ) }>
-				{ ICONS.dashboard }
+				{ ICONS.remove }
 			</Tooltip>
 		</a>
 	);

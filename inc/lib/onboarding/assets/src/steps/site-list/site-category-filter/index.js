@@ -1,7 +1,7 @@
 import React from 'react';
-import { __ } from '@wordpress/i18n';
 import { useNavigate } from 'react-router-dom';
 import { CategoryList } from '@brainstormforce/starter-templates-components';
+import { __ } from '@wordpress/i18n';
 import { setURLParmsValue } from '../../../utils/url-params';
 import { useStateValue } from '../../../store/store';
 

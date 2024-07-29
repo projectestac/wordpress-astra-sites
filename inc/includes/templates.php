@@ -42,10 +42,29 @@ $suggestion_link = astra_sites_get_suggestion_link();
 					</div>
 					<div class="ast-sites-template-library-filter-text-wrapper">
 						<label for="elementor-template-library-filter-text" class="elementor-screen-only"><?php esc_html_e( 'Search...', 'astra-sites' ); ?></label>
-						<input id="wp-filter-search-input" placeholder="<?php esc_html_e( 'SEARCH', 'astra-sites' ); ?>" class="">
+						<input id="wp-filter-search-input" placeholder="<?php esc_attr_e( 'SEARCH', 'astra-sites' ); ?>" class="">
 						<i class="eicon-search"></i>
 					</div>
 				</div>
+				<?php
+					// Check flexbox container, If inactive then activate it.
+					$flexbox_container = get_option( 'elementor_experiment-container' );
+					// Check if the value is 'inactive'.
+				if ( 'inactive' === $flexbox_container ) { 
+					?>
+						<div class="ast-sites-container-notice-wrap">
+							<div class="ast-sites-container-notice-content">
+								<p><?php esc_html_e( "We've observed that the 'Flexbox Container' setting in your Elementor configuration is currently inactive. To ensure a seamless import, please active this option.", 'astra-sites' ); ?></p>
+								<div class="ast-sites-container-notice-actions">
+									<a href="<?php echo esc_url( home_url( '/wp-admin/admin.php?page=elementor#tab-experiments' ) ); ?>" class="ast-sites-container-notice-button" >
+										<span><?php esc_html_e( 'Activate it!', 'astra-sites' ); ?></span>
+									</a>
+								</div>
+							</div>
+						</div>
+					<?php 
+				}
+				?>
 				<div id="ast-sites-floating-notice-wrap-id" class="ast-sites-floating-notice-wrap"><div class="ast-sites-floating-notice"></div></div>
 				<?php
 				$manual_sync = get_site_option( 'astra-sites-manual-sync-complete', 'no' );
@@ -107,12 +126,12 @@ $suggestion_link = astra_sites_get_suggestion_link();
 				} else {
 					?>
 				<div class="ast-sites-modal__header__logo">
-					<span class="ast-sites-modal__header__logo__text-wrapper"><?php echo Astra_Sites_White_Label::get_instance()->get_white_label_name(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+					<span class="ast-sites-modal__header__logo__text-wrapper"><?php echo esc_html( Astra_Sites_White_Label::get_instance()->get_white_label_name() ); ?></span>
 				</div>
 					<?php
 				}
 				?>
-				<div class="back-to-layout" title="<?php esc_html_e( 'Back to Layout', 'astra-sites' ); ?>" data-step="1"><i class="ast-icon-chevron-left"></i></div>
+				<div class="back-to-layout" title="<?php esc_attr_e( 'Back to Layout', 'astra-sites' ); ?>" data-step="1"><i class="ast-icon-chevron-left"></i></div>
 			</div>
 			<div class="elementor-templates-modal__header__menu-area astra-sites-step-1-wrap ast-sites-modal__options">
 				<div class="elementor-template-library-header-menu">
@@ -122,12 +141,12 @@ $suggestion_link = astra_sites_get_suggestion_link();
 			</div>
 			<div class="elementor-templates-modal__header__items-area">
 				<div class="ast-sites-modal__header__close ast-sites-modal__header__close--normal ast-sites-modal__header__item">
-					<i class="dashicons close dashicons-no-alt" aria-hidden="true" title="<?php esc_html_e( 'Close', 'astra-sites' ); ?>"></i>
+					<i class="dashicons close dashicons-no-alt" aria-hidden="true" title="<?php esc_attr_e( 'Close', 'astra-sites' ); ?>"></i>
 					<span class="elementor-screen-only"><?php esc_html_e( 'Close', 'astra-sites' ); ?></span>
 				</div>
 				<div class="astra-sites__sync-wrap">
 					<div class="astra-sites-sync-library-button">
-						<span class="ast-icon-refresh" aria-hidden="true" title="<?php esc_html_e( 'Sync Library', 'astra-sites' ); ?>"></span>
+						<span class="ast-icon-refresh" aria-hidden="true" title="<?php esc_attr_e( 'Sync Library', 'astra-sites' ); ?>"></span>
 					</div>
 				</div>
 			</div>
@@ -174,11 +193,11 @@ $suggestion_link = astra_sites_get_suggestion_link();
 						</div>
 					</span>
 					<div class="theme-id-container">
-						<h3 class="theme-name">{{{site_title}}}</h3>
+						<h3 class="theme-name">{{site_title}}</h3>
 					</div>
 					<# if ( site_type && 'free' !== site_type ) { #>
-						<?php /* translators: %s are white label strings. */ ?>
-						<div class="agency-ribbons" title="<?php printf( esc_attr__( 'This premium template is accessible with %1$s "Premium" Package.', 'astra-sites' ), Astra_Sites_White_Label::get_instance()->get_white_label_name() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>"><img class="premium-crown-icon" src="<?php echo esc_url( ASTRA_SITES_URI . 'inc/assets/images/premium-crown.svg' ); ?>" alt="premium-crown"><?php esc_html_e( 'Premium', 'astra-sites' ); ?></div>
+						<?php /* translators: %1$s are white label strings. */ ?>
+						<div class="agency-ribbons" title="<?php printf( esc_attr__( 'This premium template is accessible with %1$s "Premium" Package.', 'astra-sites' ), esc_html( Astra_Sites_White_Label::get_instance()->get_white_label_name() ) ); ?>"><img class="premium-crown-icon" src="<?php echo esc_url( ASTRA_SITES_URI . 'inc/assets/images/premium-crown.svg' ); ?>" alt="premium-crown"><?php esc_html_e( 'Premium', 'astra-sites' ); ?></div>
 					<# } #>
 				</div>
 			</div>
@@ -234,13 +253,13 @@ $suggestion_link = astra_sites_get_suggestion_link();
 		<div class="astra-sites-no-sites">
 			<div class="inner">
 				<h3><?php esc_html_e( 'Sorry No Results Found.', 'astra-sites' ); ?></h3>
-				<div class="content">
+				<div class="content" style="text-align: center">
 					<div class="description">
 						<p>
-						<?php
-						/* translators: %1$s External Link */
-						printf( __( 'Don\'t see a template you would like to import?<br><a target="_blank" href="%1$s">Make a Template Suggestion!</a>', 'astra-sites' ), esc_url( $suggestion_link ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						?>
+							<?php
+								/* translators: %1$s External Link */
+								printf( esc_html__( "Don't see a template you would like to import? %s", 'astra-sites' ), nl2br( '<br><a target="_blank" href="' . esc_url( $suggestion_link ) . '">Make a Template Suggestion!</a>' ) );
+							?>
 						</p>
 						<div class="back-to-layout-button"><span class="button astra-sites-back"><?php esc_html_e( 'Back to Templates', 'astra-sites' ); ?></span></div>
 					</div>
@@ -283,7 +302,7 @@ $suggestion_link = astra_sites_get_suggestion_link();
 					</div>
 				</span>
 				<div class="theme-id-container">
-					<h3 class="theme-name">{{{site_title}}}</h3>
+					<h3 class="theme-name">{{site_title}}</h3>
 					<#
 					var is_free = true;
 					if ( 'pages' == AstraElementorSitesAdmin.type ) {
@@ -304,8 +323,8 @@ $suggestion_link = astra_sites_get_suggestion_link();
 					<# } #>
 				</div>
 				<# if ( site_type && 'free' !== site_type ) { #>
-					<?php /* translators: %s are white label strings. */ ?>
-					<div class="agency-ribbons" title="<?php printf( esc_attr__( 'This premium template is accessible with %1$s "Premium" Package.', 'astra-sites' ), Astra_Sites_White_Label::get_instance()->get_white_label_name() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>"><?php esc_html_e( 'Premium', 'astra-sites' ); ?></div>
+					<?php /* translators: %1$s are white label strings. */ ?>
+					<div class="agency-ribbons" title="<?php printf( esc_attr__( 'This premium template is accessible with %1$s "Premium" Package.', 'astra-sites' ), esc_html( Astra_Sites_White_Label::get_instance()->get_white_label_name() ) ); ?>"><?php esc_html_e( 'Premium', 'astra-sites' ); ?></div>
 				<# } #>
 			</div>
 		</div>
@@ -322,7 +341,7 @@ $suggestion_link = astra_sites_get_suggestion_link();
 						<p>
 						<?php
 						/* translators: %1$s External Link */
-						printf( __( 'Don\'t see a template you would like to import?<br><a target="_blank" href="%1$s">Make a Template Suggestion!</a>', 'astra-sites' ), esc_url( $suggestion_link ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						printf( esc_attr__( 'Don\'t see a template you would like to import?<br><a target="_blank" href="%1$s">Make a Template Suggestion!</a>', 'astra-sites' ), esc_url( $suggestion_link ) );
 						?>
 						</p>
 						<div class="back-to-layout-button"><span class="button astra-sites-back"><?php esc_html_e( 'Back to Templates', 'astra-sites' ); ?></span></div>
@@ -358,7 +377,7 @@ $suggestion_link = astra_sites_get_suggestion_link();
 
 			var parent_name = '';
 			if ( undefined != data[ind]['parent-site-name'] ) {
-				var parent_name = $( "<textarea/>") .html( data[ind]['parent-site-name'] ).text();
+				var parent_name = jQuery( "<textarea/>") .html( data[ind]['parent-site-name'] ).text();
 			}
 
 			var complete_title = parent_name + ' - ' + data[ ind ]['title'];
@@ -390,8 +409,15 @@ $suggestion_link = astra_sites_get_suggestion_link();
 					<h3 class="theme-name"><strong>{{title1}}</strong>{{title2}}</h3>
 				</div>
 				<# if ( site_type && 'free' !== site_type ) { #>
-					<?php /* translators: %1$s External Link */ ?>
-					<div class="agency-ribbons" title="<?php printf( esc_attr__( 'This premium template is accessible with %1$s "Premium" Package.', 'astra-sites' ), Astra_Sites_White_Label::get_instance()->get_white_label_name() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>"><?php esc_html_e( 'Premium', 'astra-sites' ); ?></div>
+					<div class="agency-ribbons" title="
+					<?php
+						/* translators: %1$s are white label strings. */
+						printf( esc_attr__( 'This premium template is accessible with %1$s "Premium" Package.', 'astra-sites' ), esc_html( Astra_Sites_White_Label::get_instance()->get_white_label_name() ) ); 
+					?>
+						"
+						>
+						<?php esc_html_e( 'Premium', 'astra-sites' ); ?>
+					</div>
 				<# } #>
 			</div>
 		</div>
@@ -403,13 +429,13 @@ $suggestion_link = astra_sites_get_suggestion_link();
 		<div class="astra-sites-no-sites">
 			<div class="inner">
 				<h3><?php esc_html_e( 'Sorry No Results Found.', 'astra-sites' ); ?></h3>
-				<div class="content">
+				<div class="content" style="text-align: center">
 					<div class="description">
 						<p>
-						<?php
-						/* translators: %1$s External Link */
-						printf( __( 'Don\'t see a template you would like to import?<br><a target="_blank" href="%1$s">Make a Template Suggestion!</a>', 'astra-sites' ), esc_url( $suggestion_link ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						?>
+							<?php
+								/* translators: %1$s External Link */
+								printf( esc_html__( "Don't see a template you would like to import? %s", 'astra-sites' ), nl2br( '<br><a target="_blank" href="' . esc_url( $suggestion_link ) . '">Make a Template Suggestion!</a>' ) );
+							?>
 						</p>
 						<div class="back-to-layout-button"><span class="button astra-sites-back"><?php esc_html_e( 'Back to Templates', 'astra-sites' ); ?></span></div>
 					</div>
@@ -469,7 +495,7 @@ $suggestion_link = astra_sites_get_suggestion_link();
 					<p>
 					<?php
 					/* translators: %1$s External Link */
-					printf( __( 'Don\'t see a template you would like to import?<br><a target="_blank" href="%1$s">Make a Template Suggestion!</a>', 'astra-sites' ), esc_url( $suggestion_link ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					printf( esc_html__( 'Don\'t see a template you would like to import?<br><a target="_blank" href="%1$s">Make a Template Suggestion!</a>', 'astra-sites' ), esc_url( $suggestion_link ) );
 					?>
 					</p>
 					<div class="back-to-layout-button"><span class="button astra-sites-back"><?php esc_html_e( 'Back to Templates', 'astra-sites' ); ?></span></div>
